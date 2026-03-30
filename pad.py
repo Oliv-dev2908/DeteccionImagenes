@@ -4,14 +4,14 @@ import re
 
 ocr = PaddleOCR(use_angle_cls=True, lang='en')
 
-img = cv2.imread("ecuCom6.jpeg")
+img = cv2.imread("ecuCom5.jpeg")
 result = ocr.ocr(img)
 
 # =========================
 # FUNCIONES
 # =========================
 def recuperar_variable(paso_actual, paso_anterior):
-    if paso_actual["sin_x"] and paso_anterior:
+    if tiene_falta_variable(paso_actual) and paso_anterior:
         if 'x' in paso_anterior["reconstruido"]:
             partes = paso_actual["reconstruido"].split("=")
             if len(partes) == 2:
@@ -93,17 +93,103 @@ def procesar_texto(texto):
     texto_proc = normalizar_division(texto_proc)
     texto_proc = corregir_numeros_raros(texto_proc)
 
-    invalido = detectar_invalido(texto_proc)
-    incierto = detectar_incertidumbre(texto_proc)
-    sin_x = detectar_sin_variable(texto_proc)
+    problemas, sugerencias = analizar_detallado(texto_proc)
 
     return {
         "original": original,
         "reconstruido": texto_proc,
-        "invalido": invalido,
-        "incierto": incierto,
-        "sin_x": sin_x
+        "problemas": problemas,
+        "sugerencias": sugerencias
     }
+
+def analizar_detallado(texto):
+    problemas = []
+    sugerencias = []
+
+    # ===== IGUAL =====
+    if '=' not in texto:
+        problemas.append({
+            "tipo": "missing_equals",
+            "detalle": "No se detecta signo '='"
+        })
+        sugerencias.append({
+            "tipo": "insert_equals",
+            "confianza": 0.7
+        })
+    else:
+        partes = texto.split('=')
+        if len(partes) != 2:
+            problemas.append({
+                "tipo": "multiple_equals",
+                "detalle": "Más de un '=' detectado"
+            })
+        else:
+            if partes[0] == "" or partes[1] == "":
+                problemas.append({
+                    "tipo": "incomplete_expression",
+                    "detalle": "Expresión incompleta en un lado del '='"
+                })
+
+    # ===== VARIABLE =====
+    if 'x' not in texto:
+        problemas.append({
+            "tipo": "missing_variable",
+            "detalle": "No se detecta variable 'x'"
+        })
+        sugerencias.append({
+            "tipo": "insert_variable",
+            "posible": "inicio o junto a número",
+            "confianza": 0.6
+        })
+
+    # ===== OPERADORES RAROS =====
+    if re.search(r'(\+\-|\-\+)', texto):
+        problemas.append({
+            "tipo": "ambiguous_operator",
+            "detalle": "Secuencia +- o -+ detectada"
+        })
+
+    # ===== DIVISION SOSPECHOSA =====
+    if re.search(r'\d11\d', texto):
+        problemas.append({
+            "tipo": "possible_division_error",
+            "detalle": "Patrón tipo 11 detectado (posible / mal reconocido)"
+        })
+        sugerencias.append({
+            "tipo": "replace_with_division",
+            "confianza": 0.8
+        })
+
+    # ===== EXPRESION MINIMA =====
+    if len(texto) <= 2:
+        problemas.append({
+            "tipo": "too_short",
+            "detalle": "Texto demasiado corto para ser ecuación"
+        })
+
+    return problemas, sugerencias
+
+def tiene_problemas_graves(paso):
+    tipos = [p["tipo"] for p in paso["problemas"]]
+
+    return (
+        "missing_equals" in tipos or
+        "incomplete_expression" in tipos or
+        "too_short" in tipos
+    )
+
+def tiene_falta_variable(paso):
+    return any(p["tipo"] == "missing_variable" for p in paso["problemas"])
+
+def es_ecuacion_valida(paso):
+    tipos = [p["tipo"] for p in paso["problemas"]]
+
+    return not (
+        "missing_equals" in tipos or
+        "multiple_equals" in tipos or
+        "incomplete_expression" in tipos or
+        "too_short" in tipos
+    )
 
 
 # =========================
@@ -139,7 +225,7 @@ while i < len(pasos):
         actual["repair"] = True
 
     # Intentar fusionar si hay problemas
-    if (actual["invalido"] or actual["sin_x"]) and i + 1 < len(pasos):
+    if tiene_problemas_graves(actual) and i + 1 < len(pasos):
         _, siguiente = pasos[i + 1]
 
         siguiente_limpio = limpiar(siguiente)
@@ -148,7 +234,7 @@ while i < len(pasos):
         combinado = limpiar(texto) + siguiente_limpio
         combinado_proc = procesar_texto(combinado)
 
-        if not combinado_proc["invalido"]:
+        if es_ecuacion_valida(combinado_proc):
             combinado_proc["fusion"] = True
             pasos_finales.append(combinado_proc)
             i += 2
@@ -171,16 +257,16 @@ for i in range(len(pasos_finales)):
 print("\nOCR vs Reconstrucción\n")
 
 for i, paso in enumerate(pasos_finales, 1):
+    print(f"\nPaso {i:02d}")
+    print(f"OCR: {paso['original']}")
+    print(f"Reconstruido: {paso['reconstruido']}")
 
-    estado = "OK"
+    if paso["problemas"]:
+        print("Problemas detectados:")
+        for p in paso["problemas"]:
+            print(f"  - ({p['tipo']}) {p['detalle']}")
 
-    if paso["invalido"]:
-        estado = "⚠️ inválido"
-    elif paso["incierto"]:
-        estado = "⚠️ dudoso"
-    elif paso["sin_x"]:
-        estado = "❌ sin variable"
-    elif paso.get("fusion"):
-        estado = "🔧 fusionado"
-
-    print(f"Paso {i:02d}: {paso['original']:<25} -> {paso['reconstruido']:<25} [{estado}]")
+    if paso["sugerencias"]:
+        print("Sugerencias:")
+        for s in paso["sugerencias"]:
+            print(f"  - ({s['tipo']}) confianza={s.get('confianza', '?')}")
