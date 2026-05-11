@@ -1,0 +1,70 @@
+{
+  "x_detectada": 2.0,
+  "total_pasos": 5,
+  "pasos_recuperados": 4,
+  "pasos_no_recuperables": 0,
+  "pasos": [
+    {
+      "numero": 1,
+      "ocr_original": "2+59",
+      "reconstruido_a1": "2+59",
+      "ecuacion_final": "2x+5=9",
+      "metodo_recuperacion": "llm_vision",
+      "tipo_ruido_original": "moderado",
+      "confianza_a2": 0.338,
+      "fue_recuperado": true,
+      "no_recuperable": false
+    },
+    {
+      "numero": 2,
+      "ocr_original": "9-5",
+      "reconstruido_a1": "9-5",
+      "ecuacion_final": "2x=9-5",
+      "metodo_recuperacion": "llm_vision",
+      "tipo_ruido_original": "moderado",
+      "confianza_a2": 0.338,
+      "fue_recuperado": true,
+      "no_recuperable": false
+    },
+    {
+      "numero": 3,
+      "ocr_original": "2X=",
+      "reconstruido_a1": "2x=",
+      "ecuacion_final": "2x=4",
+      "metodo_recuperacion": "llm_texto",
+      "tipo_ruido_original": "moderado",
+      "confianza_a2": 0.512,
+      "fue_recuperado": true,
+      "no_recuperable": false
+    },
+    {
+      "numero": 4,
+      "ocr_original": "2x=41/2",
+      "reconstruido_a1": "2x=41/2",
+      "ecuacion_final": "2x=4/2",
+      "metodo_recuperacion": "llm_texto",
+      "tipo_ruido_original": "moderado",
+      "confianza_a2": 0.5,
+      "fue_recuperado": true,
+      "no_recuperable": false
+    },
+    {
+      "numero": 5,
+      "ocr_original": "X=2",
+      "reconstruido_a1": "x=2",
+      "ecuacion_final": "x=2",
+      "metodo_recuperacion": "sin_cambio",
+      "tipo_ruido_original": "ninguno",
+      "confianza_a2": 1.0,
+      "fue_recuperado": false,
+      "no_recuperable": false
+    }
+  ],
+  "metadata": {
+    "version_agente": "3.1",
+    "llm_usado": true,
+    "vision_usada": true,
+    "imagen_path": "ecuCom5.jpeg",
+    "listo_para_a4": true
+  }
+}

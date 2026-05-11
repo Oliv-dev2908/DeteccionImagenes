@@ -1,0 +1,68 @@
+{
+  "calificacion": 5.8,
+  "pasos_verificados": [
+    {
+      "numero": 1,
+      "ecuacion": "2x+5=9",
+      "es_correcto": true,
+      "error_detectado": "",
+      "correccion_esperada": "",
+      "verificacion_algebraica": "✅ Ecuación algebraicamente válida",
+      "verificacion_coherencia": "✅ Primer paso: coherencia base aceptada"
+    },
+    {
+      "numero": 2,
+      "ecuacion": "2x=9-5",
+      "es_correcto": true,
+      "error_detectado": "",
+      "correccion_esperada": "",
+      "verificacion_algebraica": "✅ Ecuación algebraicamente válida",
+      "verificacion_coherencia": "✅ Paso derivado lógicamente del anterior"
+    },
+    {
+      "numero": 3,
+      "ecuacion": "2x=4",
+      "es_correcto": true,
+      "error_detectado": "",
+      "correccion_esperada": "",
+      "verificacion_algebraica": "✅ Ecuación algebraicamente válida",
+      "verificacion_coherencia": "✅ Paso derivado lógicamente del anterior"
+    },
+    {
+      "numero": 4,
+      "ecuacion": "2x=4/2",
+      "es_correcto": false,
+      "error_detectado": "Error aritmético: simplificación numérica incorrecta (se esperaba 4, se obtuvo 2)",
+      "correccion_esperada": "2*x=4",
+      "verificacion_algebraica": "✅ Ecuación algebraicamente válida",
+      "verificacion_coherencia": "❌ Error aritmético: simplificación numérica incorrecta (se esperaba 4, se obtuvo 2)"
+    },
+    {
+      "numero": 5,
+      "ecuacion": "x=2",
+      "es_correcto": false,
+      "error_detectado": "Incoherencia secuencial: el paso no se deriva del anterior",
+      "correccion_esperada": "2*x=2",
+      "verificacion_algebraica": "✅ Ecuación algebraicamente válida",
+      "verificacion_coherencia": "❌ Incoherencia secuencial: el paso no se deriva del anterior"
+    }
+  ],
+  "resumen_errores": [
+    "Paso 4: Error aritmético: simplificación numérica incorrecta (se esperaba 4, se obtuvo 2)",
+    "Paso 5: Incoherencia secuencial: el paso no se deriva del anterior"
+  ],
+  "retroalimentacion": [
+    "Revisa operaciones numéricas intermedias antes de continuar al siguiente paso.",
+    "Asegura que cada paso sea equivalente al anterior (misma solución para x).",
+    "Te conviene escribir pasos más pequeños para facilitar la verificación y evitar saltos lógicos."
+  ],
+  "metadata": {
+    "agente": "Agente4",
+    "version": "1.0.0",
+    "timestamp_utc": "2026-05-11T15:33:00.965848+00:00",
+    "fuente_entrada": "prueba.json",
+    "total_pasos_entrada": 5,
+    "total_pasos_reportado_agente3": 5,
+    "duracion_segundos": 0.1731
+  }
+}
